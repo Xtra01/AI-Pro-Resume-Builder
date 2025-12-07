@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Pro Resume Builder</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700;900&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
         theme: {
@@ -17,6 +17,9 @@
             colors: {
               primary: '#2563eb',
               secondary: '#475569',
+            },
+            screens: {
+              'print': {'raw': 'print'},
             }
           },
         },
@@ -25,23 +28,40 @@
     <style>
       /* Print styles for exact A4 rendering */
       @media print {
-        @page { margin: 0; }
-        body { margin: 0; -webkit-print-color-adjust: exact; }
+        @page { margin: 0; size: auto; }
+        body { margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; background: white; }
         .no-print { display: none !important; }
         .print-only { display: block !important; }
+        
+        /* Reset any scaling or layout constraints for print */
+        #root { height: auto; overflow: visible; }
+        
+        /* Target the A4 page directly */
         .cv-page {
-          box-shadow: none !important;
           margin: 0 !important;
-          width: 100% !important;
+          box-shadow: none !important;
+          width: 210mm !important;
+          min-height: 297mm !important;
+          height: auto !important;
           page-break-after: always;
+          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact;
+          transform: none !important;
         }
       }
-      .scrollbar-hide::-webkit-scrollbar {
-          display: none;
+      
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
       }
-      .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
       }
     </style>
   <script type="importmap">
