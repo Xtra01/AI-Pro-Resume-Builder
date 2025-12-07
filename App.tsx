@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Editor } from './components/Editor';
 import { Preview } from './components/Preview';
 import { ChatBot } from './components/ChatBot';
@@ -9,6 +9,15 @@ import { Download, MessageSquare, Palette, FileText, Layout } from 'lucide-react
 const App: React.FC = () => {
   const [cvData, setCVData] = useState<CVData>(INITIAL_DATA);
   const [isChatOpen, setIsChatOpen] = useState(false);
+
+  // Update document title for better PDF filenames
+  useEffect(() => {
+    if (cvData.personalInfo.fullName) {
+      document.title = `${cvData.personalInfo.fullName} - CV`;
+    } else {
+      document.title = 'CV Taslağım';
+    }
+  }, [cvData.personalInfo.fullName]);
 
   const handlePrint = () => {
     window.print();
@@ -23,9 +32,9 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden font-sans bg-gray-900">
+    <div className="h-screen flex flex-col overflow-hidden font-sans bg-gray-900 app-container">
       {/* Top Bar */}
-      <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0 z-20 print:hidden shadow-sm">
+      <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0 z-20 print:hidden shadow-sm no-print">
         <div className="flex items-center gap-2">
           <div className="bg-primary p-1.5 rounded-lg text-white">
              <FileText size={20} strokeWidth={2.5} />
@@ -80,7 +89,7 @@ const App: React.FC = () => {
             className="flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-all text-sm font-medium shadow-sm hover:shadow"
           >
             <Download size={16} />
-            <span className="hidden md:inline">İndir</span>
+            <span className="hidden md:inline">PDF Olarak Kaydet</span>
           </button>
         </div>
       </header>
@@ -88,23 +97,25 @@ const App: React.FC = () => {
       {/* Main Workspace */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left: Editor */}
-        <div className="w-full md:w-[400px] lg:w-[480px] bg-white h-full z-10 print:hidden shadow-[4px_0_24px_rgba(0,0,0,0.02)] shrink-0 border-r border-gray-200">
+        <div className="w-full md:w-[400px] lg:w-[480px] bg-white h-full z-10 print:hidden shadow-[4px_0_24px_rgba(0,0,0,0.02)] shrink-0 border-r border-gray-200 editor-sidebar no-print">
           <Editor cvData={cvData} setCVData={setCVData} />
         </div>
 
         {/* Right: Preview */}
-        <div className="flex-1 bg-gray-100/50 h-full overflow-hidden relative flex flex-col">
+        <div className="flex-1 bg-gray-100/50 h-full overflow-hidden relative flex flex-col preview-container">
           <Preview data={cvData} />
         </div>
       </div>
 
       {/* Chat Bot Overlay */}
-      <ChatBot 
-        cvData={cvData} 
-        setCVData={setCVData} 
-        isOpen={isChatOpen} 
-        onClose={() => setIsChatOpen(false)} 
-      />
+      <div className="chat-bot no-print">
+        <ChatBot 
+            cvData={cvData} 
+            setCVData={setCVData} 
+            isOpen={isChatOpen} 
+            onClose={() => setIsChatOpen(false)} 
+        />
+      </div>
     </div>
   );
 };

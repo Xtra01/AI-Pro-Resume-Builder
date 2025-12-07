@@ -29,24 +29,58 @@
       /* Print styles for exact A4 rendering */
       @media print {
         @page { margin: 0; size: auto; }
-        body { margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; background: white; }
-        .no-print { display: none !important; }
-        .print-only { display: block !important; }
         
-        /* Reset any scaling or layout constraints for print */
-        #root { height: auto; overflow: visible; }
-        
-        /* Target the A4 page directly */
-        .cv-page {
+        html, body {
+          height: auto !important;
+          overflow: visible !important;
           margin: 0 !important;
+          padding: 0 !important;
+          background: white !important;
+          -webkit-print-color-adjust: exact; 
+          print-color-adjust: exact;
+        }
+
+        /* Hide all UI elements specifically */
+        .no-print, 
+        header, 
+        .editor-sidebar, 
+        .chat-bot,
+        .print-hidden { 
+          display: none !important; 
+        }
+
+        /* Reset main app layout constraints */
+        #root, .app-container, .preview-container, .preview-wrapper {
+          height: auto !important;
+          overflow: visible !important;
+          display: block !important;
+          position: static !important;
+          width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          background: white !important;
+        }
+        
+        /* Ensure the CV page renders correctly */
+        .cv-page {
+          margin: 0 auto !important;
           box-shadow: none !important;
           width: 210mm !important;
           min-height: 297mm !important;
-          height: auto !important;
+          /* Allow height to grow if content overflows one page */
+          height: auto !important; 
           page-break-after: always;
           print-color-adjust: exact;
           -webkit-print-color-adjust: exact;
           transform: none !important;
+          position: relative !important;
+          left: auto !important;
+          top: auto !important;
+        }
+
+        /* Prevent breaks inside elements if possible */
+        p, h1, h2, h3, h4, li {
+          break-inside: avoid;
         }
       }
       

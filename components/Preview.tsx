@@ -11,9 +11,9 @@ export const Preview: React.FC<PreviewProps> = ({ data }) => {
 
   // --- MODERN TEMPLATE ---
   const ModernTemplate = () => (
-    <div className="cv-page w-[210mm] min-h-[297mm] bg-white text-gray-800 flex shadow-2xl overflow-hidden print:shadow-none relative">
+    <div className="cv-page w-[210mm] min-h-[297mm] bg-white text-gray-800 flex shadow-2xl overflow-hidden print:shadow-none relative print:overflow-visible">
       {/* Sidebar */}
-      <div className="w-[70mm] shrink-0 p-6 text-white flex flex-col h-auto min-h-full print:bg-opacity-100 print:print-color-adjust-exact" style={{ backgroundColor: themeColor, WebkitPrintColorAdjust: 'exact' }}>
+      <div className="w-[70mm] shrink-0 p-6 text-white flex flex-col h-auto min-h-full print:min-h-0 print:h-auto" style={{ backgroundColor: themeColor, WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
         <div className="mb-8 break-words">
           <h1 className="text-2xl font-bold leading-tight mb-2 uppercase tracking-wide">{personalInfo.fullName}</h1>
           <p className="text-white/90 text-sm font-medium">{personalInfo.title}</p>
@@ -41,7 +41,7 @@ export const Preview: React.FC<PreviewProps> = ({ data }) => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-8 bg-white">
+      <div className="flex-1 p-8 bg-white print:p-6">
         {personalInfo.summary && (
           <div className="mb-8">
             <h3 className="text-lg font-bold text-gray-800 border-b-2 pb-1 mb-3 uppercase tracking-wide" style={{ borderColor: themeColor }}>Hakkımda</h3>
@@ -76,7 +76,7 @@ export const Preview: React.FC<PreviewProps> = ({ data }) => {
 
   // --- CLASSIC TEMPLATE ---
   const ClassicTemplate = () => (
-    <div className="cv-page w-[210mm] min-h-[297mm] bg-white text-gray-800 p-[2.5cm] shadow-2xl print:shadow-none print:p-[2cm]">
+    <div className="cv-page w-[210mm] min-h-[297mm] bg-white text-gray-800 p-[2.5cm] shadow-2xl print:shadow-none print:p-[2cm] relative print:overflow-visible">
       {/* Header */}
       <div className="text-center border-b-[3px] double border-gray-800 pb-6 mb-8">
         <h1 className="text-4xl font-serif font-black text-gray-900 mb-2 uppercase tracking-wide">{personalInfo.fullName}</h1>
@@ -135,7 +135,7 @@ export const Preview: React.FC<PreviewProps> = ({ data }) => {
   );
 
   return (
-    <div className="h-full overflow-auto bg-gray-700 p-8 flex justify-center items-start print:p-0 print:bg-white print:block custom-scrollbar">
+    <div className="h-full overflow-auto bg-gray-700 p-8 flex justify-center items-start print:p-0 print:bg-white print:block custom-scrollbar preview-wrapper">
       <div className="origin-top transition-transform duration-300 ease-in-out scale-[0.6] md:scale-[0.65] lg:scale-[0.75] xl:scale-[0.85] 2xl:scale-[0.95] print:scale-100">
         {template === 'classic' ? <ClassicTemplate /> : <ModernTemplate />}
       </div>
