@@ -1,4 +1,4 @@
-import { GoogleGenAI, Type, FunctionDeclaration } from "@google/genai";
+import { GoogleGenAI, Type, FunctionDeclaration, Content, Part } from "@google/genai";
 import { CVData } from "../types";
 
 // Define the tool for updating CV data
@@ -10,27 +10,29 @@ const updateCVTool: FunctionDeclaration = {
     properties: {
       action: {
         type: Type.STRING,
-        description: "The type of update action: 'add_item', 'update_personal', 'add_section'",
-        enum: ["add_item", "update_personal", "add_section"]
+        description: "The type of update action: 'add_item', 'update_personal'",
+        enum: ["add_item", "update_personal"]
       },
       sectionType: {
         type: Type.STRING,
-        description: "Target section for items (EXPERIENCE, EDUCATION, SKILLS, PROJECTS)",
+        description: "Target section for items (EXPERIENCE, EDUCATION, SKILLS, PROJECTS, LANGUAGES)",
         enum: ["EXPERIENCE", "EDUCATION", "SKILLS", "PROJECTS", "LANGUAGES"]
       },
       data: {
         type: Type.OBJECT,
         description: "The data to add or update",
         properties: {
-          title: { type: Type.STRING },
-          subtitle: { type: Type.STRING },
+          title: { type: Type.STRING, description: "Job title, School name, or Skill name" },
+          subtitle: { type: Type.STRING, description: "Company, Degree, or Role" },
           date: { type: Type.STRING },
           description: { type: Type.STRING },
           location: { type: Type.STRING },
           fullName: { type: Type.STRING },
           email: { type: Type.STRING },
           summary: { type: Type.STRING },
-          linkedin: { type: Type.STRING }
+          linkedin: { type: Type.STRING },
+          phone: { type: Type.STRING },
+          website: { type: Type.STRING }
         }
       }
     },
@@ -52,11 +54,10 @@ export class GeminiService {
     message: string,
     currentCV: CVData
   ) {
-    // We inject the current CV state as a system instruction context implicitly
-    // or by prepending it to the chat history, but systemInstruction is cleaner.
+    // Context preparation
     const cvContext = JSON.stringify(currentCV);
     
-    const systemInstruction = `
+    const systemInstructionText = `
       Sen profesyonel bir İnsan Kaynakları uzmanı ve CV danışmanısın.
       Kullanıcının şu anki CV verisi: ${cvContext}
       
@@ -67,28 +68,36 @@ export class GeminiService {
       4. Profesyonel, cesaretlendirici ve net ol.
     `;
 
+    // Ensure strictly typed Content array for history
+    const validHistory: Content[] = history.map(h => ({
+      role: h.role,
+      parts: h.parts.map(p => ({ text: p.text || " " } as Part))
+    }));
+
     try {
       const chat = this.ai.chats.create({
         model: this.model,
         config: {
-          systemInstruction: systemInstruction,
+          systemInstruction: systemInstructionText,
           tools: [{ functionDeclarations: [updateCVTool] }],
         },
-        history: history
+        history: validHistory
       });
 
-      const result = await chat.sendMessage(message);
+      // Send message with correct signature { message: ... }
+      const result = await chat.sendMessage({ message: message });
       
-      // Check for function calls
       const toolCalls = result.functionCalls;
       
       let toolResponse = null;
       let modelResponseText = result.text || "";
 
       if (toolCalls && toolCalls.length > 0) {
-        // Return the tool call data so the App can execute it
         toolResponse = toolCalls[0];
-        modelResponseText = "CV'nizi güncelliyorum...";
+        // Provide a fallback text if the model only returned a function call
+        if (!modelResponseText) {
+          modelResponseText = "İsteğiniz üzerine CV'nizi güncelliyorum...";
+        }
       }
 
       return {
@@ -98,7 +107,7 @@ export class GeminiService {
 
     } catch (error) {
       console.error("Gemini Chat Error:", error);
-      return { text: "Üzgünüm, şu an yanıt veremiyorum. Lütfen API anahtarını kontrol et.", toolCall: null };
+      return { text: "Üzgünüm, bir bağlantı hatası oluştu. Lütfen tekrar deneyin.", toolCall: null };
     }
   }
 }
